@@ -265,10 +265,3 @@ Ensure environment variables are set in your deployment platform.
 3. Make changes
 4. Test thoroughly
 5. Submit a pull request
-
-## 📄 License
-
-This project is private and proprietary.</content>
-<filePath">c:\Users\shiva\OneDrive\Documents\Desktop\Startups\sports-travel\README.md
-#   t r a v e l  
- 
