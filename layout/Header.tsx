@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X, Trophy } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 interface NavbarProps {
     onOpenLeadForm: () => void;
@@ -137,9 +138,9 @@ export default function Navbar({ onOpenLeadForm }: NavbarProps) {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <Button onClick={() => onOpenLeadForm()} size="sm" variant="gradient">
-                                    Get Started
-                                </Button>
+                                <Link href="/login" className={`px-6 py-4 rounded-lg font-semibold transition-all duration-300 bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg hover:from-amber-600 hover:to-orange-600`}>
+                                    Login
+                                </Link>
                             </motion.div>
                         </div>
 

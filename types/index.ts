@@ -2,6 +2,8 @@ export interface LeadFormData {
     name: string;
     email: string;
     phone: string;
+    numberOfTravelers: number;
+    travelDate: string;
     eventInterest?: string;
     message: string;
 }

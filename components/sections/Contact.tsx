@@ -1,43 +1,72 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { MapPin, Phone, Mail, Calendar, User, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { leadsApi, packagesApi } from '@/src/lib/api';
 
 export default function Contact() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
+    const [packageId, setPackageId] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [message, setMessage] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const [packages, setPackages] = useState<any[]>([]);
+
+    useEffect(() => {
+        fetchPackages();
+    }, []);
+
+    const fetchPackages = async () => {
+        try {
+            const response = await packagesApi.getAll();
+            if (response.success) {
+                setPackages(response.data);
+            }
+        } catch (error) {
+            console.error('Failed to fetch packages:', error);
+        }
+    };
 
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
-            const body = { name, email, phone, message };
-            const res = await fetch('/api/contact', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body),
-            });
-
-            const json = await res.json();
-            if (res.ok && json.success) {
+            const selectedPackage = packages.find(pkg => pkg._id === packageId);
+            const body = { 
+                name, 
+                email, 
+                phone, 
+                message,
+                numberOfTravelers: 1,
+                travelDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+                ...(packageId && { packageId }),
+                ...(selectedPackage?.eventId?._id && { eventId: selectedPackage.eventId._id }),
+            };
+            
+            const result = await leadsApi.create(body);
+            
+            if (result.success) {
                 setSubmitted(true);
-                toast.success(json.message || 'Thanks — we will respond soon.');
+                toast.success('Thanks — we will respond soon.');
                 setName('');
                 setEmail('');
                 setPhone('');
+                setPackageId('');
                 setMessage('');
                 setTimeout(() => setSubmitted(false), 5000);
             } else {
-                toast.error(json.message || 'Failed to send. Please try again.');
+                if (Array.isArray(result.data)) {
+                    result.data.forEach((error: string) => toast.error(error));
+                } else {
+                    toast.error(result.message || 'Failed to send. Please try again.');
+                }
             }
         } catch (err) {
             console.error('Contact submit error:', err);
@@ -144,53 +173,69 @@ export default function Contact() {
                                 </div>
                             )}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <label className="block md:col-span-1">
+                                    <span className="text-sm font-medium text-gray-700">Full name</span>
+                                    <input
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                        className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                        placeholder="Your name"
+                                    />
+                                </label>
+
+                                <label className="block md:col-span-1">
+                                    <span className="text-sm font-medium text-gray-700">Select Package</span>
+                                    <select
+                                        value={packageId}
+                                        onChange={(e) => setPackageId(e.target.value)}
+                                        className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                    >
+                                        <option value="">Choose a package (optional)</option>
+                                        {packages.map((pkg) => (
+                                            <option key={pkg._id} value={pkg._id}>
+                                                {pkg.name} - ₹{pkg.basePrice?.toLocaleString('en-IN')}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+
+                                <label className="block md:col-span-1">
+                                    <span className="text-sm font-medium text-gray-700">Email</span>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                        placeholder="you@example.com"
+                                    />
+                                </label>
+
+                                <label className="block md:col-span-1">
+                                    <span className="text-sm font-medium text-gray-700">Phone</span>
+                                    <input
+                                        type="tel"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        required
+                                        className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                                        placeholder="+91 98765 43210"
+                                    />
+                                </label>
+
                                 <label className="block md:col-span-2">
-                                <span className="text-sm font-medium text-gray-700">Full name</span>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    required
-                                    className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
-                                    placeholder="Your name"
-                                />
-                            </label>
-
-                            <label className="block md:col-span-1">
-                                <span className="text-sm font-medium text-gray-700">Email</span>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
-                                    placeholder="you@example.com"
-                                />
-                            </label>
-
-                            <label className="block md:col-span-1">
-                                <span className="text-sm font-medium text-gray-700">Phone</span>
-                                <input
-                                    type="tel"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    required
-                                    className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400"
-                                    placeholder="+91 98765 43210"
-                                />
-                            </label>
-
-                            <label className="block md:col-span-2">
-                                <span className="text-sm font-medium text-gray-700">Message</span>
-                                <textarea
-                                    value={message}
-                                    onChange={(e) => setMessage(e.target.value)}
-                                    rows={5}
-                                    required
-                                    className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
-                                    placeholder="Tell us about your travel plans or questions"
-                                />
-                            </label>
+                                    <span className="text-sm font-medium text-gray-700">Message</span>
+                                    <textarea
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        rows={5}
+                                        required
+                                        className="mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+                                        placeholder="Tell us about your travel plans or questions"
+                                    />
+                                </label>
                             </div>
 
                             <div className="pt-2 md:flex md:items-center md:gap-4">

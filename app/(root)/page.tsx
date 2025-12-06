@@ -16,15 +16,21 @@ import Contact from '@/components/sections/Contact';
 export default function Home() {
     const [isLeadFormOpen, setIsLeadFormOpen] = useState(false);
     const [preFilledEvent, setPreFilledEvent] = useState<string | undefined>();
+    const [selectedPackageId, setSelectedPackageId] = useState<string | undefined>();
+    const [selectedEventId, setSelectedEventId] = useState<string | undefined>();
 
-    const handleOpenLeadForm = (eventTitle?: string) => {
+    const handleOpenLeadForm = (eventTitle?: string, packageId?: string, eventId?: string) => {
         setPreFilledEvent(eventTitle);
+        setSelectedPackageId(packageId);
+        setSelectedEventId(eventId);
         setIsLeadFormOpen(true);
     };
 
     const handleCloseLeadForm = () => {
         setIsLeadFormOpen(false);
         setPreFilledEvent(undefined);
+        setSelectedPackageId(undefined);
+        setSelectedEventId(undefined);
     };
 
     return (
@@ -54,6 +60,8 @@ export default function Home() {
             >
                 <LeadForm
                     preFilledEvent={preFilledEvent}
+                    packageId={selectedPackageId}
+                    eventId={selectedEventId}
                     onSuccess={handleCloseLeadForm}
                 />
             </Modal>

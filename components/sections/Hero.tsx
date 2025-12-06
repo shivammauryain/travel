@@ -156,16 +156,6 @@ export default function Hero({ onOpenLeadForm }: HeroProps) {
                                 {featuredEvent.description}
                             </p>
                             <div className="flex items-center gap-4">
-                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                                        <Button
-                                        size="sm"
-                                        variant="gradient"
-                                        className="px-6 py-2.5 shadow-lg shadow-amber-500/30"
-                                        onClick={() => onOpenLeadForm(featuredEvent.title)}
-                                    >
-                                        Book Now
-                                    </Button>
-                                </motion.div>
                                 <div className="ml-auto">
                                     <div className="text-xs text-gray-500 font-medium">Starting from</div>
                                     <div className="text-3xl font-black bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">

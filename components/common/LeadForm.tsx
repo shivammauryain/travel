@@ -7,26 +7,35 @@ import * as z from 'zod';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import toast from 'react-hot-toast';
-import { LeadFormData } from '@/types';
+import { leadsApi } from '@/src/lib/api';
 
 const formSchema = z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Please enter a valid email address'),
     phone: z.string().min(10, 'Please enter a valid phone number'),
-    message: z.string().min(10, 'Message must be at least 10 characters'),
+    numberOfTravelers: z.coerce.number().min(1, 'Number of travelers must be at least 1'),
+    travelDate: z.string().refine((date) => new Date(date) > new Date(), {
+        message: 'Travel date must be in the future',
+    }),
+    eventInterest: z.string().optional(),
+    message: z.string().min(5, 'Message must be at least 5 characters'),
 });
+
+type FormData = z.infer<typeof formSchema>;
 
 interface LeadFormProps {
     preFilledEvent?: string;
+    packageId?: string;
+    eventId?: string;
     onSuccess: () => void;
 }
 
-export default function LeadForm({ preFilledEvent, onSuccess }: LeadFormProps) {
+export default function LeadForm({ preFilledEvent, packageId, eventId, onSuccess }: LeadFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const defaultMessage = preFilledEvent
-        ? `Hello! I am interested in the "${preFilledEvent}" package. Please share availability and pricing in INR for 2 adults. Also let me know what the package includes and any VIP add-ons available.`
-        : `Hello! I am interested in your sports travel packages. Please share availability and pricing in INR for 2 adults and any recommended add-ons.`;
+        ? `I'm interested in the ${preFilledEvent} package.`
+        : `I'm interested in your sports travel packages.`;
 
     const {
         register,
@@ -34,12 +43,14 @@ export default function LeadForm({ preFilledEvent, onSuccess }: LeadFormProps) {
         formState: { errors },
         setValue,
         reset,
-    } = useForm<LeadFormData>({
-        resolver: zodResolver(formSchema),
+    } = useForm<FormData>({
+        resolver: zodResolver(formSchema) as any,
         defaultValues: {
             name: '',
             email: '',
             phone: '',
+            numberOfTravelers: 2,
+            travelDate: '',
             message: defaultMessage,
             eventInterest: preFilledEvent || '',
         },
@@ -48,30 +59,38 @@ export default function LeadForm({ preFilledEvent, onSuccess }: LeadFormProps) {
     useEffect(() => {
         setValue('message', defaultMessage, { shouldDirty: false, shouldTouch: false });
         setValue('eventInterest', preFilledEvent || '', { shouldDirty: false, shouldTouch: false });
-    }, [preFilledEvent, setValue]);
+    }, [preFilledEvent, defaultMessage, setValue]);
 
-    const onSubmit = async (data: LeadFormData) => {
+    const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('/api/leads', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
+            const leadData = {
+                name: data.name,
+                email: data.email,
+                phone: data.phone,
+                numberOfTravelers: data.numberOfTravelers,
+                travelDate: data.travelDate,
+                message: data.message,
+                ...(packageId && { packageId }),
+                ...(eventId && { eventId }),
+            };
 
-            const result = await response.json();
+            const result = await leadsApi.create(leadData);
 
-                if (response.ok) {
-                toast.success(result.message || 'Thank you! We\'ll be in touch soon.');
+            if (result.success) {
+                toast.success('Thank you! We\'ll be in touch soon.');
                 reset();
                 setTimeout(() => {
                     onSuccess();
                 }, 2000);
             } else {
-                toast.error(result.message || 'Something went wrong. Please try again.');
+                // Handle validation errors array
+                if (Array.isArray(result.data)) {
+                    result.data.forEach((error: string) => toast.error(error));
+                } else {
+                    toast.error(result.message || 'Something went wrong. Please try again.');
+                }
             }
         } catch (error) {
             console.error('Form submission error:', error);
@@ -109,6 +128,26 @@ export default function LeadForm({ preFilledEvent, onSuccess }: LeadFormProps) {
                         error={errors.phone?.message}
                         placeholder="+91 98765 43210"
                         className="focus:ring-amber-400"
+                    />
+                </div>
+
+                <div className='w-full flex items-center gap-4'>
+                    <Input
+                        label="Number of Travelers"
+                        type="number"
+                        {...register('numberOfTravelers')}
+                        error={errors.numberOfTravelers?.message}
+                        placeholder="2"
+                        className="focus:ring-amber-400"
+                    />
+
+                    <Input
+                        label="Travel Date"
+                        type="date"
+                        {...register('travelDate')}
+                        error={errors.travelDate?.message}
+                        className="focus:ring-amber-400"
+                        min={new Date(Date.now() + 86400000).toISOString().split('T')[0]}
                     />
                 </div>
 
