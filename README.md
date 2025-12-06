@@ -2,6 +2,19 @@
 
 A modern, responsive web application built with Next.js for booking premium sports travel experiences worldwide. This platform connects sports enthusiasts with exclusive events, VIP packages, and curated travel experiences.
 
+## 🌐 Live Demo
+
+**Website**: [https://travel-gamma-ruby-17.vercel.app](https://travel-gamma-ruby-17.vercel.app)
+
+### Admin Access
+To explore the full admin dashboard features:
+
+- **Admin Login**: [https://travel-gamma-ruby-17.vercel.app/login](https://travel-gamma-ruby-17.vercel.app/login)
+- **Email**: `admin@sportstravel.com`
+- **Password**: `Admin@123`
+
+> **Note**: This is a demo account. Please don't modify critical data.
+
 ## Features
 
 ### For Users
