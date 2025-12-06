@@ -80,20 +80,10 @@ export default function Hero({ onOpenLeadForm }: HeroProps) {
                 >
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Button
-                            onClick={() => onOpenLeadForm()}
-                            size="lg"
-                            variant="gradient"
-                            className="shadow-2xl shadow-amber-500/50 px-8 py-4 text-lg font-bold"
-                        >
-                            Plan My Trip
-                        </Button>
-                    </motion.div>
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                        <Button
                             onClick={() => document.getElementById('packages')?.scrollIntoView({ behavior: 'smooth' })}
                             size="lg"
                             variant="outline"
-                            className="border-2 border-white/30 bg-white/10 backdrop-blur-md text-white hover:bg-white hover:!text-gray-800 shadow-xl px-8 py-4 text-lg font-bold"
+                            className="shadow-2xl bg-amber-500 text-white shadow-amber-500/50 px-8 py-4 text-lg font-bold"
                         >
                             Explore Packages
                         </Button>

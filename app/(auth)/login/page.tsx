@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Trophy, Mail, Lock, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react'
@@ -14,7 +14,7 @@ interface FormErrors {
   general?: string
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login } = useAuth()
@@ -359,5 +359,20 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-white">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-[#FF4D00] mx-auto mb-2" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
