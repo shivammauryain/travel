@@ -28,7 +28,6 @@ export default function Hero({ onOpenLeadForm }: HeroProps) {
                     backgroundPosition: 'center',
                 }}
             >
-                {/* Multi-layered gradient overlay for depth */}
                 <div className="absolute inset-0 bg-gradient-to-br from-black/50 via-black/40 to-amber-900/30" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             </div>
